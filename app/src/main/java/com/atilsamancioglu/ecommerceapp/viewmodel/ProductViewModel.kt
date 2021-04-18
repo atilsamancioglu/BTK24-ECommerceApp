@@ -15,6 +15,7 @@ class ProductViewModel : ViewModel() {
     val productList = MutableLiveData<List<Product>>()
     val basket = MutableLiveData<List<Product>>()
     val totalBasket = MutableLiveData<Int>()
+    var job : Job? = null
 
     val exceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         println("Error: ${throwable.localizedMessage}")
@@ -27,7 +28,7 @@ class ProductViewModel : ViewModel() {
             .build()
             .create(ProductAPI::class.java)
 
-        viewModelScope.launch(context = Dispatchers.IO + exceptionHandler) {
+        job = viewModelScope.launch(context = Dispatchers.IO + exceptionHandler) {
             val response = retrofit.getData()
 
 
@@ -90,6 +91,9 @@ class ProductViewModel : ViewModel() {
         }
     }
 
-
+    override fun onCleared() {
+        super.onCleared()
+        job?.cancel()
+    }
 
 }
